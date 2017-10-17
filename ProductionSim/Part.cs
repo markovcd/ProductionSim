@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace ProductionSim
 {
 	
-	public class Part : IPart, IEquatable<Part>
+	public class Part : IPart, IEquatable<Part>, IXmlSerializable
 	{
 		private readonly int _manufactureTime;
 		private readonly string _name;
@@ -41,7 +43,8 @@ namespace ProductionSim
 		{
 			unchecked
 		    {
-		        var hashCode = part.MadeFrom.Any() ? part.MadeFrom.Aggregate(1, (current, p) => 31 * current + p.GetHashCode()) : 0;
+		        //var hashCode = part.MadeFrom.Any() ? part.MadeFrom.Aggregate(1, (current, p) => 31 * current + p.GetHashCode()) : 0;
+		        var hashCode = 1;
 		        hashCode += 1000000007 * part._manufactureTime.GetHashCode();
 		        hashCode += 1000000009 * part._name.GetHashCode();
 		        return hashCode;
@@ -68,6 +71,45 @@ namespace ProductionSim
 		public static bool operator !=(Part lhs, Part rhs) 
 		{
 			return !(lhs == rhs);
+		}
+
+		#endregion
+
+		#region IXmlSerializable implementation
+
+		public System.Xml.Schema.XmlSchema GetSchema()
+		{
+			return null;
+		}
+
+		public void ReadXml(XmlReader reader)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void WriteXml(XmlWriter writer)
+		{		
+			WriteXml(this, writer);
+		}
+		
+		public static void WriteXml(Part p, XmlWriter writer)
+		{
+			writer.WriteStartElement("Part");
+			
+			writer.WriteAttributeString("Name", p.Name);
+			writer.WriteAttributeString("ManufactureTime", p.ManufactureTime.ToString());
+			
+			writer.WriteStartElement("MadeFrom");
+			
+			foreach (var part in p.MadeFrom) 
+			{
+				writer.WriteStartElement("Part");
+				writer.WriteAttributeString("Name", part.Name);
+				writer.WriteEndElement();
+			}
+			
+			writer.WriteEndElement();
+			writer.WriteEndElement();
 		}
 
 		#endregion

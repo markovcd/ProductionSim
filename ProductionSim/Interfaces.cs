@@ -6,9 +6,13 @@ namespace ProductionSim
     {
         string Name { get; }
     }
-
+	
+    
     public interface IState 
     {
+        int Ticks { get; }
+        int IdleTicks { get; }
+        
         void Tick();
         void ResetState();
     }
@@ -20,6 +24,9 @@ namespace ProductionSim
 
         IPart CurrentPart { get; }
         IPart NextPart { get; set; }
+        
+        IBuffer InputBuffer { get; set; }
+        IBuffer OutputBuffer { get; set; }
     }
 
     public interface IPart : IElement
@@ -30,11 +37,11 @@ namespace ProductionSim
 
     public interface IBuffer : IElement, ICollection<IPart>
     {
-        //IEnumerable<IBlock> SourceBlocks { get; }
-        //IEnumerable<IBlock> TargetBlocks { get; }
+        IEnumerable<IBlock> SourceBlocks { get; }
+        IEnumerable<IBlock> TargetBlocks { get; }
 
-        //int Capacity { get; set; }
-        //bool Full { get; }
+        int Capacity { get; }
+        bool Full { get; }
 
         void AddSourceBlock(IBlock block);
         void RemoveSourceBlock(IBlock block);
