@@ -50,6 +50,8 @@
   <ItemGroup>
     <Compile Include="Block.cs" />
     <Compile Include="Buffer.cs" />
+    <Compile Include="SimulationDeserializer.cs" />
+    <Compile Include="SimulationSerializer.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Interfaces.cs" />

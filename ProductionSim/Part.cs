@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 namespace ProductionSim
 {
 	
-	public class Part : IPart, IEquatable<Part>, IXmlSerializable
+	public class Part : IPart, IEquatable<Part>
 	{
 		private readonly int _manufactureTime;
 		private readonly string _name;
@@ -19,11 +19,11 @@ namespace ProductionSim
 		public IEnumerable<IPart> MadeFrom { get { return _madeFrom; } }
 		public string Name { get { return _name; } }
 		
-		public Part(string name, int manufactureTime, IEnumerable<IPart> madeFrom)
+		public Part(string name, int manufactureTime, IEnumerable<IPart> madeFrom = null)
 		{
 			_name = name;
 			_manufactureTime = manufactureTime;
-			_madeFrom = madeFrom;
+			_madeFrom = madeFrom ?? Enumerable.Empty<IPart>();
 			
 			_hashCode = GetHashCode(this);
 		}
@@ -53,8 +53,7 @@ namespace ProductionSim
 
 		public override bool Equals(object obj)
 		{
-			var other = obj as Part;
-			return other != null && Equals(other);
+			return Equals(obj as Part);
 		}
 		
 		public bool Equals(Part other)
@@ -63,9 +62,10 @@ namespace ProductionSim
             return GetHashCode() == other.GetHashCode();
 		}
 
-		public static bool operator ==(Part lhs, Part rhs) 
+		public static bool operator ==(Part lhs, Part rhs)
 		{
-			return lhs != null && lhs.Equals(rhs);
+		    if (ReferenceEquals(null, rhs)) return ReferenceEquals(lhs, null);
+            return lhs.Equals(rhs);
 		}
 
 		public static bool operator !=(Part lhs, Part rhs) 
@@ -75,43 +75,5 @@ namespace ProductionSim
 
 		#endregion
 
-		#region IXmlSerializable implementation
-
-		public System.Xml.Schema.XmlSchema GetSchema()
-		{
-			return null;
-		}
-
-		public void ReadXml(XmlReader reader)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void WriteXml(XmlWriter writer)
-		{		
-			WriteXml(this, writer);
-		}
-		
-		public static void WriteXml(Part p, XmlWriter writer)
-		{
-			writer.WriteStartElement("Part");
-			
-			writer.WriteAttributeString("Name", p.Name);
-			writer.WriteAttributeString("ManufactureTime", p.ManufactureTime.ToString());
-			
-			writer.WriteStartElement("MadeFrom");
-			
-			foreach (var part in p.MadeFrom) 
-			{
-				writer.WriteStartElement("Part");
-				writer.WriteAttributeString("Name", part.Name);
-				writer.WriteEndElement();
-			}
-			
-			writer.WriteEndElement();
-			writer.WriteEndElement();
-		}
-
-		#endregion
 	}
 }
