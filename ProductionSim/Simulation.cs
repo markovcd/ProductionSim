@@ -12,41 +12,34 @@ namespace ProductionSim
 	    private ISet<IBuffer> _buffers;
 	    private ISet<IPart> _parts;
 	    
-        public int Ticks { get; protected set; }
-	    public int IdleTicks { get; protected set; }
-        
-	    public IEnumerable<IBlock> Blocks { get { return _blocks; } }
-	    
-        public IEnumerable<IBuffer> Buffers 
-        { 
-        	get 
-        	{ 
-        		return _buffers = _buffers ?? 
-        						  _blocks.Select(b => b.InputBuffer)
-        				  	  			 .Concat(_blocks.Select(b => b.OutputBuffer))
-        				  	  			 .ToHashSet(); 
-        	} 
-        }
-        
-		public IEnumerable<IPart> Parts 
-		{ 
-			get 
-			{ 
-				return _parts = _parts ?? 
-								_blocks.SelectMany(b => b.ProducesParts)
-							  		   .Concat(_blocks.SelectMany(b => b.UsesParts))
-									   .ToHashSet();
-			}
-		}
+        public int Ticks { get; private set; }
+	    public int IdleTicks { get; private set; }
 
+	    public IEnumerable<IBlock> Blocks
+	    {
+	        get => _blocks;
+	        set => SetBlocks(value);
+	    }
+
+	    public IEnumerable<IBuffer> Buffers => _buffers; 
+		public IEnumerable<IPart> Parts => _parts;
+	
         private Simulation() { }
 
 	    public Simulation(IEnumerable<IBlock> blocks, ILogger logger = null)
 		{
-	    	_blocks = blocks.ToHashSet();
-	    	Logger = logger;
+		    Blocks = blocks;
+
+            Logger = logger;
 	    	Log("Created.");
-		}   
+		}
+
+	    private void SetBlocks(IEnumerable<IBlock> blocks)
+	    {
+	        _blocks = blocks.ToHashSet();
+	        _buffers = _blocks.Select(b => b.InputBuffer).Concat(_blocks.Select(b => b.OutputBuffer)).ToHashSet();
+	        _parts = _blocks.SelectMany(b => b.ProducesParts).Concat(_blocks.SelectMany(b => b.UsesParts)).ToHashSet();
+        }
 
 	    public void Tick()
 	    {
@@ -82,7 +75,7 @@ namespace ProductionSim
 
 		public void ReadXml(XmlReader reader)
 		{
-			_blocks = SimulationDeserializer.ReadXml(reader);
+			Blocks = SimulationDeserializer.ReadXml(reader);
 		}
 
 		public void WriteXml(XmlWriter writer)

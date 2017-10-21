@@ -1,36 +1,30 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Xml;
-using System.Xml.Serialization;
 
 namespace ProductionSim
 {
 	
 	public class Part : IPart, IEquatable<Part>
 	{
-		private readonly int _manufactureTime;
-		private readonly string _name;
-		private readonly IEnumerable<IPart> _madeFrom;
+	    private readonly int _hashCode;
 		
-		private readonly int _hashCode;
-		
-		public int ManufactureTime { get { return _manufactureTime; } }
-		public IEnumerable<IPart> MadeFrom { get { return _madeFrom; } }
-		public string Name { get { return _name; } }
-		
-		public Part(string name, int manufactureTime, IEnumerable<IPart> madeFrom = null)
+		public int ManufactureTime { get; }
+	    public IEnumerable<IPart> MadeFrom { get; }
+	    public string Name { get; }
+
+	    public Part(string name, int manufactureTime, IEnumerable<IPart> madeFrom = null)
 		{
-			_name = name;
-			_manufactureTime = manufactureTime;
-			_madeFrom = madeFrom ?? Enumerable.Empty<IPart>();
+			Name = name;
+			ManufactureTime = manufactureTime;
+			MadeFrom = madeFrom ?? Enumerable.Empty<IPart>();
 			
 			_hashCode = GetHashCode(this);
 		}
 
 	    public override string ToString()
 	    {
-	        return _name;
+	        return Name;
 	    }
 
         #region Equals and GetHashCode implementation
@@ -38,15 +32,15 @@ namespace ProductionSim
 		{
 			return _hashCode;
 		}
-		
-		protected static int GetHashCode(Part part)
+
+	    private static int GetHashCode(Part part)
 		{
 			unchecked
 		    {
 		        //var hashCode = part.MadeFrom.Any() ? part.MadeFrom.Aggregate(1, (current, p) => 31 * current + p.GetHashCode()) : 0;
 		        var hashCode = 1;
-		        hashCode += 1000000007 * part._manufactureTime.GetHashCode();
-		        hashCode += 1000000009 * part._name.GetHashCode();
+		        hashCode += 1000000007 * part.ManufactureTime.GetHashCode();
+		        hashCode += 1000000009 * part.Name.GetHashCode();
 		        return hashCode;
             }
 		}

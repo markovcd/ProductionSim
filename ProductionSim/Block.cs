@@ -1,52 +1,47 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Xml;
-using System.Xml.Serialization;
 
 namespace ProductionSim
 {
-
 	public class Block : Loggable, IBlock
 	{
-		private readonly string _name;
-		private readonly ISet<IPart> _producesParts, _usesParts;
-	    private IPart _producedPart;
-	    private IEnumerable<IPart> _stockParts;
-	    private readonly IBuffer _inputBuffer, _outputBuffer;
+	    private readonly ISet<IPart> _producesParts, _usesParts;
+	    private IPart _nextPart;
 
-		public string Name { get { return _name; } }
-    
-	    public IEnumerable<IPart> ProducesParts { get { return _producesParts; } }
-	    public IEnumerable<IPart> UsesParts { get { return _usesParts; } }
+	    public string Name { get; }
 
-	    public IBuffer InputBuffer { get { return _inputBuffer; } }
-	    public IBuffer OutputBuffer { get { return _outputBuffer; } }
-	    
-	    public int Ticks { get; protected set; }
-	    public int IdleTicks { get; protected set; }
+	    public IEnumerable<IPart> ProducesParts => _producesParts;
+	    public IEnumerable<IPart> UsesParts => _usesParts;
+
+	    public IBuffer InputBuffer { get; }
+	    public IBuffer OutputBuffer { get; }
+
+	    public int Ticks { get; private set; }
+	    public int IdleTicks { get; private set; }
 	    public int CurrentPartTicksLeft { get; protected set; }
 	    
-	    public IPart ProducedPart { get { return _producedPart; } }
-	    public IEnumerable<IPart> StockParts { get { return _stockParts; } }
-			    
+	    public IPart ProducedPart { get; private set; }
+
+	    public IEnumerable<IPart> StockParts { get; private set; }
+
 	    public IPart NextPart
 	    {
-	        get { return _producedPart; }
+	        get => _nextPart;
 	        set
 	        {
 	            if (!ProducesParts.Contains(value)) ThrowInvalidOperationException("Block {0} doesn't produce part {1}.", this, value);
-	            _producedPart = value;
+	            _nextPart = value;
 	        }
 	    }    
    
         public Block(string name, IEnumerable<IPart> producesParts, IBuffer inputBuffer, IBuffer outputBuffer, ILogger logger = null)
 		{
-		    _name = name;
+		    Name = name;
 		    _producesParts = producesParts.ToHashSet();
-            _usesParts = producesParts.SelectMany(p => p.MadeFrom).ToHashSet();
-            _inputBuffer = inputBuffer;
-            _outputBuffer = outputBuffer;
+            _usesParts = _producesParts.SelectMany(p => p.MadeFrom).ToHashSet();
+            InputBuffer = inputBuffer;
+            OutputBuffer = outputBuffer;
 
 			IdleTicks = 0;
 		    Ticks = 0;
@@ -62,8 +57,8 @@ namespace ProductionSim
         	Log(msg);
         	throw new InvalidOperationException(msg);
         }
-        
-        public bool CanMakePart(IPart part)
+
+	    private bool CanMakePart(IPart part)
         {
         	if (!ProducesParts.Contains(part)) return false;
         	var inputBuffer = InputBuffer.ToList();
@@ -74,8 +69,8 @@ namespace ProductionSim
 	    {
 	        IdleTicks = 0;
 	        CurrentPartTicksLeft = 0;
-            _producedPart = null;
-	        NextPart = null;
+            ProducedPart = null;
+	        _nextPart = null;
 	        
 	        Log("Resetting state.");
 	    }
@@ -105,10 +100,10 @@ namespace ProductionSim
 			{
 				if (CanMakePart(NextPart))
 				{
-					_producedPart = NextPart;
+					ProducedPart = NextPart;
 					NextPart = null;
 					CurrentPartTicksLeft = ProducedPart.ManufactureTime;
-					_stockParts = TakeStockParts(ProducedPart).ToList();
+					StockParts = TakeStockParts(ProducedPart).ToList();
 				    Log("Setting current part to {0}.", ProducedPart);
 				}
 				else 
@@ -133,8 +128,8 @@ namespace ProductionSim
 			    else
 			    {
 			    	OutputBuffer.Add(ProducedPart);
-			    	_producedPart = null;
-			    	_stockParts = null;
+			    	ProducedPart = null;
+			    	StockParts = null;
 			    	Log("Made part {0}", ProducedPart);
 			    }
 			}
@@ -142,7 +137,7 @@ namespace ProductionSim
 		
 		public override string ToString()
 		{
-			return _name;
+			return Name;
 		} 
 		
 		
