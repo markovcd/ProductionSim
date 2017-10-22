@@ -8,7 +8,7 @@ namespace ProductionSim
 	{
 		public static void Main(string[] args)
 		{
-			/*
+			
 			var logger = new Logger { Console = true, Debug = true, Timestamp = true };
 
             var p1 = new Part("A", 0);
@@ -34,14 +34,18 @@ namespace ProductionSim
 
            
             var s = new Simulation(new[] {b1, b2, b3, b4, b5, b6}, logger);
-
-            var serializer = new XmlSerializer(typeof(Simulation));
+		    while (true)
+		    {
+		        s.Tick();
+		        Console.ReadKey();
+		    }
+            /*var serializer = new XmlSerializer(typeof(Simulation));
 		    using (var file = System.IO.File.OpenWrite(@"C:\Users\m25326\Desktop\a.txt"))
 		    {
 		        serializer.Serialize(file,s);
 
 		    }*/
-			var s = Deserialize(@"C:\Users\m25326\Desktop\a.txt");
+			//var s = Deserialize(@"C:\Users\m25326\Desktop\a.txt");
 		  
 		}
 		

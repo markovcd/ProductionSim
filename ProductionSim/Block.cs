@@ -7,8 +7,7 @@ namespace ProductionSim
 	public class Block : Loggable, IBlock
 	{
 	    private readonly ISet<IPart> _producesParts, _usesParts;
-	    private IPart _nextPart;
-
+	    
 	    public string Name { get; }
 
 	    public IEnumerable<IPart> ProducesParts => _producesParts;
@@ -22,20 +21,14 @@ namespace ProductionSim
 	    public int CurrentPartTicksLeft { get; protected set; }
 	    
 	    public IPart ProducedPart { get; private set; }
+	    public IPartSequence PartsToMake { get; }
 
-	    public IEnumerable<IPart> StockParts { get; private set; }
+        public IEnumerable<IPart> StockParts { get; private set; }
 
-	    public IPart NextPart
-	    {
-	        get => _nextPart;
-	        set
-	        {
-	            if (!ProducesParts.Contains(value)) ThrowInvalidOperationException("Block {0} doesn't produce part {1}.", this, value);
-	            _nextPart = value;
-	        }
-	    }    
+	    public IPart NextPart => PartsToMake.NextPart;
+	       
    
-        public Block(string name, IEnumerable<IPart> producesParts, IBuffer inputBuffer, IBuffer outputBuffer, ILogger logger = null)
+        public Block(string name, IEnumerable<IPart> producesParts, IBuffer inputBuffer, IBuffer outputBuffer, IEnumerable<PartSequenceStep> partsToMake = null, ILogger logger = null)
 		{
 		    Name = name;
 		    _producesParts = producesParts.ToHashSet();
@@ -43,7 +36,9 @@ namespace ProductionSim
             InputBuffer = inputBuffer;
             OutputBuffer = outputBuffer;
 
-			IdleTicks = 0;
+		    PartsToMake = new PartSequence(partsToMake);
+
+            IdleTicks = 0;
 		    Ticks = 0;
 		    
 		    Logger = logger;
@@ -70,7 +65,6 @@ namespace ProductionSim
 	        IdleTicks = 0;
 	        CurrentPartTicksLeft = 0;
             ProducedPart = null;
-	        _nextPart = null;
 	        
 	        Log("Resetting state.");
 	    }
@@ -100,8 +94,7 @@ namespace ProductionSim
 			{
 				if (CanMakePart(NextPart))
 				{
-					ProducedPart = NextPart;
-					NextPart = null;
+					ProducedPart = PartsToMake.TakePart();
 					CurrentPartTicksLeft = ProducedPart.ManufactureTime;
 					StockParts = TakeStockParts(ProducedPart).ToList();
 				    Log("Setting current part to {0}.", ProducedPart);

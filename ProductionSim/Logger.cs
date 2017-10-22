@@ -2,10 +2,7 @@
 
 namespace ProductionSim
 {
-	public interface ILogger
-    {
-    	void Log(string message, object parent, params object[] args);
-    }
+	
 	
 	public class Logger : ILogger
 	{		

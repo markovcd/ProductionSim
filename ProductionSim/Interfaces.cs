@@ -1,7 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Linq;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace ProductionSim
 {
+    public interface ILogger
+    {
+        void Log(string message, object parent, params object[] args);
+    }
+
     public interface IElement
     {
         string Name { get; }
@@ -16,15 +24,29 @@ namespace ProductionSim
         void ResetState();
     }
 
+    
+
+    public interface IPartSequence : IList<PartSequenceStep>
+    {
+        IPart NextPart { get; }
+        PartSequenceStep NextStep { get; }
+        PartSequenceStep CurrentStep { get; }
+        int PartsLeft { get; }
+
+        IEnumerable<IPart> Parts { get; }
+        IPart TakePart();
+
+    }
+
     public interface IBlock : IState, IElement
     {
         IEnumerable<IPart> ProducesParts { get; }
         IEnumerable<IPart> UsesParts { get; }
 
         IPart ProducedPart { get; }
-        IPart NextPart { get; set; }
+        IPart NextPart { get; }
         IEnumerable<IPart> StockParts { get; }
-        
+        IPartSequence PartsToMake { get; }
         IBuffer InputBuffer { get; }
         IBuffer OutputBuffer { get; }
     }
