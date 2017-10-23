@@ -8,19 +8,16 @@ namespace ProductionSim
 	public class Part : IPart, IEquatable<Part>
 	{
 	    private readonly int _hashCode;
-	    private readonly int _manufactureTime;
-	    private readonly IEnumerable<IPart> _madeFrom;
-	    private readonly string _name;
-	    
-	    public int ManufactureTime { get { return _manufactureTime; } }
-	    public IEnumerable<IPart> MadeFrom { get { return _madeFrom; } }
-	    public string Name { get { return _name; } }
+		
+		public int ManufactureTime { get; }
+	    public IEnumerable<IPart> MadeFrom { get; }
+	    public string Name { get; }
 
 	    public Part(string name, int manufactureTime, IEnumerable<IPart> madeFrom = null)
 		{
-			_name = name;
-			_manufactureTime = manufactureTime;
-			_madeFrom = (madeFrom ?? Enumerable.Empty<IPart>()).ToList();
+			Name = name;
+			ManufactureTime = manufactureTime;
+			MadeFrom = madeFrom ?? Enumerable.Empty<IPart>();
 			
 			_hashCode = GetHashCode(this);
 		}

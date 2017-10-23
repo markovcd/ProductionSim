@@ -17,12 +17,12 @@ namespace ProductionSim
 
 	    public IEnumerable<IBlock> Blocks
 	    {
-	    	get { return _blocks; }
-	    	set { SetBlocks(value); }
+	        get => _blocks;
+	        set => SetBlocks(value);
 	    }
 
-	    public IEnumerable<IBuffer> Buffers { get { return _buffers; } }
-	    public IEnumerable<IPart> Parts { get { return _parts; } }
+	    public IEnumerable<IBuffer> Buffers => _buffers; 
+		public IEnumerable<IPart> Parts => _parts;
 	
         private Simulation() { }
 

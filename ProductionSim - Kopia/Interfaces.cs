@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace ProductionSim
 {
@@ -21,38 +23,32 @@ namespace ProductionSim
         void Tick();
         void ResetState();
     }
-    
-    public interface IBlockProgram
-    {
-    	IPart NextPart { get; }
-    	IPart TakePart();
-    }
 
-    public interface IPartSequence : IBlockProgram, IList<PartSequenceStep>
+    
+
+    public interface IPartSequence : IList<PartSequenceStep>
     {
+        IPart NextPart { get; }
         PartSequenceStep NextStep { get; }
         PartSequenceStep CurrentStep { get; }
         int PartsLeft { get; }
 
         IEnumerable<IPart> Parts { get; }
+        IPart TakePart();
+
     }
-	
-    public interface IInputBlock : IState, IElement
+
+    public interface IBlock : IState, IElement
     {
-    	IEnumerable<IPart> UsesParts { get; }
-    	IBuffer InputBuffer { get; }
-    	IEnumerable<IPart> StockParts { get; }
+        IEnumerable<IPart> ProducesParts { get; }
+        IEnumerable<IPart> UsesParts { get; }
+
+        IPart ProducedPart { get; }
+        IEnumerable<IPart> StockParts { get; }
+        IPartSequence PartsToMake { get; }
+        IBuffer InputBuffer { get; }
+        IBuffer OutputBuffer { get; }
     }
-    
-    public interface IOutputBlock : IState, IElement
-    {
-    	IEnumerable<IPart> ProducesParts { get; }
-    	IBuffer OutputBuffer { get; }
-    	IPart ProducedPart { get; }
-    	IBlockProgram BlockProgram { get; }        
-    }
-    
-    public interface IBlock : IInputBlock, IOutputBlock {  }
 
     public interface IPart : IElement
     {

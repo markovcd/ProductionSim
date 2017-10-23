@@ -4,18 +4,15 @@ using System.Linq;
 
 namespace ProductionSim
 {
-    public struct PartSequenceStep : IEnumerable<IPart>
+    public class PartSequenceStep : IEnumerable<IPart>
     {
-    	private readonly int _count;
-    	private readonly IPart _part;
-    	
-    	public int Count { get { return _count; } }
-        public IPart Part { get { return _part; } }
+        public int Count { get; }
+        public IPart Part { get; }
 
         public PartSequenceStep(IPart part, int count)
         {
-            _count = count;
-            _part = part;
+            Count = count;
+            Part = part;
         }
 
         public IEnumerator<IPart> GetEnumerator()

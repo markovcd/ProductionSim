@@ -18,7 +18,7 @@ namespace ProductionSim
 		
 		public void Log(string message, object parent, params object[] args)
 		{
-			var msg = String.Format("{0} {1}:\t", parent.GetType().Name, parent) + string.Format(message, args);
+			var msg = $"{parent.GetType().Name} {parent}:\t" + string.Format(message, args);
 			if (Timestamp) msg = DateTime.Now + " " + msg;
 			if (Debug) System.Diagnostics.Debug.Print(msg);
 			if (Console) System.Console.WriteLine(msg);
@@ -29,14 +29,9 @@ namespace ProductionSim
 	{
 		public ILogger Logger { get; set; }
 		
-		protected Loggable(ILogger logger)
-		{
-			Logger = logger;
-		}
-		
 		protected void Log(string message, params object[] args)
 		{
-			if (Logger != null) Logger.Log(message, this, args);
+		    Logger?.Log(message, this, args);
 		}
 	}
 }
